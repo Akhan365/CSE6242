@@ -21,7 +21,7 @@ $b. Read mnist_train.csv and mnist_test.csv separately.$
 
 \begin{Schunk}
 \begin{Sinput}
-> setwd("C:/Users/eelsayed/Google Drive/CSE 6242/2017 Spring")
+> setwd("C:/Users/eelsayed/Google Drive/CSE6242")
 > rawDatalLoaded <- TRUE
 > if(file.exists("mnist_train.csv")){
 +   train <- read.csv(file="mnist_train.csv", header = FALSE)
@@ -152,23 +152,24 @@ Each gradient descent update iteration requires $2n(d + 1)$\\
 \section{Implementation}
 \begin{Schunk}
 \begin{Sinput}
-> logistic_regression <- function(X, y, alpha, eta, seed = 123, maxiter = 1e6) {
-+   set.seed(seed)
-+   ## initialize
-+   X$intercept <- 1
-+   theta <- rnorm(ncol(X), sd = 0.5)
-+   ## large initial values for ndeltantheta
-+   d_theta <- rep(10000, ncol(X))
-+   ## to avoid to recompute the x*y product everytime
-+   XY <- apply(X,2,function(x) x * y)
-+   ## gradient descent
-+   iter <- 1
-+   while (any(abs(alpha * d_theta/(theta + 0.0001)) > eta) & iter < maxiter){
+> gradient_descent <- function(X, Y, theta){
 +     z <- as.matrix(X) %*% theta
 +     yz_exp <- 1 / (1 + exp(-y * z))
-+     d_theta <- t(XY) %*% yz_exp
-+     theta <- theta - alpha * d_theta
-+     iter <- iter + 1
++     tmp <- apply(X,2,function(x) x * y)
++     delta_theta <- t(tmp) %*% yz_exp
++     return(delta_theta)
++ }
+> logistic_regression <- function(X, y, alpha, eta, seed = 123, threshold = 1e6) {
++   # initializations
++   set.seed(seed)
++   X$intercept <- 1
++   theta <- rnorm(ncol(X), sd = 0.5)
++   delta_theta <- rep(10000, ncol(X))
++   numIterations <- 1
++   while (any(abs(alpha * d_theta/(theta + 0.0001)) > eta) & numIterations < threshold){
++     delta_theta <- gradient_descent(X,Y,theta)
++     theta <- theta - alpha * delta_theta
++     numIterations <- numIterations + 1
 +   }
 +   return(theta)
 + }
