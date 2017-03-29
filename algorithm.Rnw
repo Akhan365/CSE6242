@@ -149,29 +149,60 @@ Each gradient descent update iteration requires $2n(d + 1)$\\
 
 \section{Implementation}
 <<>>=
-
-gradient_descent <- function(X, Y, theta){
+# Gredient Descent
+gradient_descent <- function(X, Y, XY, theta){
     z <- as.matrix(X) %*% theta
-    yz_exp <- 1 / (1 + exp(-y * z))
-    tmp <- apply(X,2,function(x) x * y)
-    delta_theta <- t(tmp) %*% yz_exp
+    yz_exp <- 1 / (1 + exp(-Y * z))
+    # Precalculate that instead for performance
+    #tmp <- apply(X,2,function(x) X * Y)
+    delta_theta <- t(XY) %*% yz_exp
     return(delta_theta)
 }
 
-logistic_regression <- function(X, y, alpha, eta, seed = 123, threshold = 1e6) {
+# Logistic Regression
+logistic_regression <- function(X, Y, alpha, eta, seed = 100, threshold = 100) {
   # initializations
   set.seed(seed)
   X$intercept <- 1
   theta <- rnorm(ncol(X), sd = 0.5)
   delta_theta <- rep(10000, ncol(X))
   numIterations <- 1
-  while (any(abs(alpha * d_theta/(theta + 0.0001)) > eta) & numIterations < threshold){
-    delta_theta <- gradient_descent(X,Y,theta)
+  
+  #XY <- apply(X,2,function(x) X * Y)
+  XY <- sweep(X, 1,Y, "*")
+  while (any(abs(alpha * delta_theta/(theta + 0.0001)) > eta) & numIterations < threshold){
+    delta_theta <- gradient_descent(X,Y, XY,theta)
     theta <- theta - alpha * delta_theta
     numIterations <- numIterations + 1
   }
   return(theta)
 }
 @
+
+\section{Training}
+\textbf{a} Train 2 models, one on the train_0_1 set and another on train_3_5, and report the\\
+training and test accuracies.
+<<>>=
+# Calculate the predictions
+predict <- function(thetasFromTraining, classLabel){
+  classLabel$intercept <- 1
+  -sign(as.matrix(classLabel) %*% thetasFromTraining)
+}
+
+# Calculate the accuracy
+accuracy <- function(model_function, X, Y,  alpha = 0.001, eta = 0.000001, seed = 100){
+  model_output <- model_function(X, Y, alpha, eta, seed)
+  a <- predict(model_output, X)
+  tmp <- mean(Y == a)
+  return(tmp)
+}
+
+accuracy(logistic_regression, train_0_1, true_label_train_0_1)
+accuracy(logistic_regression, train_3_5, true_label_train_3_5)
+
+@
+
+
+
 
 \end{document}
