@@ -1,7 +1,7 @@
-### R code from vignette source 'hw3.Rnw'
+### R code from vignette source 'algorithm.Rnw'
 
 ###################################################
-### code chunk number 1: hw3.Rnw:22-48
+### code chunk number 1: algorithm.Rnw:22-48
 ###################################################
 
 setwd("C:/Users/eelsayed/Google Drive/CSE6242")
@@ -32,21 +32,21 @@ names(test)[785] <- "Label"
 
 
 ###################################################
-### code chunk number 2: hw3.Rnw:53-55
+### code chunk number 2: algorithm.Rnw:53-55
 ###################################################
 train_0_1 <- train[(train$Label == 0) | (train$Label == 1),]
 train_3_5 <- train[(train$Label == 3) | (train$Label == 5),]
 
 
 ###################################################
-### code chunk number 3: hw3.Rnw:60-62
+### code chunk number 3: algorithm.Rnw:60-62
 ###################################################
 test_0_1 <- test[(test$Label == 0) | (test$Label == 1),]
 test_3_5 <- test[(test$Label == 3) | (test$Label == 5),]
 
 
 ###################################################
-### code chunk number 4: hw3.Rnw:67-78
+### code chunk number 4: algorithm.Rnw:67-78
 ###################################################
 true_label_train_0_1 <- train_0_1$Label
 train_0_1 <- subset(train_0_1, select = names(train_0_1) != "Label" )
@@ -80,7 +80,7 @@ save_digit_image(train, 5, "Class label : 5", "5.jpg")
 
 
 ###################################################
-### code chunk number 6: hw3.Rnw:152-181
+### code chunk number 6: algorithm.Rnw:152-181
 ###################################################
 # Gredient Descent
 gradient_descent <- function(X, Y, XY, theta){
@@ -114,7 +114,7 @@ logistic_regression <- function(X, Y, deviation, alpha, eta, seed = 100, thresho
 
 
 ###################################################
-### code chunk number 7: hw3.Rnw:187-204
+### code chunk number 7: algorithm.Rnw:187-204
 ###################################################
 # Calculate the predictions
 predict <- function(thetasFromTraining, classLabel){
@@ -136,7 +136,7 @@ accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5)
 
 
 ###################################################
-### code chunk number 8: hw3.Rnw:210-236
+### code chunk number 8: algorithm.Rnw:210-236
 ###################################################
 
 train_0_1_accuracies <- numeric()
@@ -167,7 +167,7 @@ mean(test_3_5_accuracies)
 
 
 ###################################################
-### code chunk number 9: hw3.Rnw:270-300
+### code chunk number 9: algorithm.Rnw:270-300
 ###################################################
 train_0_1_accuracies <- numeric()
 t <- rnorm(ncol(train_0_1), sd = 0.7)
@@ -202,7 +202,7 @@ mean(test_3_5_accuracies)
 
 
 ###################################################
-### code chunk number 10: hw3.Rnw:317-341
+### code chunk number 10: algorithm.Rnw:317-341
 ###################################################
 train_0_1_accuracies <- numeric()
 for(i in 1:10){ 
@@ -231,7 +231,7 @@ mean(test_3_5_accuracies)
 
 
 ###################################################
-### code chunk number 11: hw3.Rnw:347-406
+### code chunk number 11: algorithm.Rnw:347-406
 ###################################################
 # Calculate the accuracy for samples of divisions in the training data using the passed cutRatio
 accuracy <- function(model_function, X, Y, deviation, cutRatio, divisions = 10, alpha = 0.001, eta = 0.000001, seed = 100, threshold = 100){
