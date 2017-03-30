@@ -20,6 +20,7 @@ $a. Download the CSV files for the provided dataset.\\$
 $b. Read mnist_train.csv and mnist_test.csv separately.$
 
 <<>>=
+
 setwd("C:/Users/eelsayed/Google Drive/CSE6242")
 rawDatalLoaded <- TRUE
 
@@ -235,7 +236,7 @@ mean(test_3_5_accuracies)
 
 @
 
-\textbf{c} For 0,1 and 3,5 cases, explain if you observe any difference you in accuracy. Also,\\
+\textbf{c} For 0,1 and 3,5 cases, explain if youÂ observe any difference you in accuracy. Also,\\
 explain why do you think this difference might be.\\
 
 \textbf{d} This assignment deals with binary classification. Explain what you would do if you \\
@@ -248,7 +249,7 @@ getting classified by one of the models, or remain un-classified.
 
 \section{Evaluation}
 
-\textbf{a} Experiment with different initializations of the parameter used for gradient descent \\
+\textbf{a} Experiment with different initializations of the parameter used for gradient descentÂ \\
 Clearly mention the initial values of the parameter tried, run the same experiment \\
 as 3b using this initialization, report the average test and train accuracies obtained \\
 by using this initialization, mention which is set of initializations is the better.\\
@@ -338,6 +339,71 @@ for(i in 1:10){
   test_3_5_accuracies <- append(test_3_5_accuracies, accuracy(logistic_regression, test_3_5, true_label_test_3_5, deviation = 0.5, alpha = 0.01, eta = 0.0001, threshold = 1000))
 }
 mean(test_3_5_accuracies)
+@
+
+\section{Evaluation}
+\textbf(a)
+
+<<>>=
+# Calculate the accuracy for samples of divisions in the training data using the passed cutRatio
+accuracy <- function(model_function, X, Y, deviation, cutRatio, divisions = 10, alpha = 0.001, eta = 0.000001, seed = 100, threshold = 100){
+  set.seed(seed)
+  samples <- lapply(1:divisions, function(division){
+    sample(1:nrow(X), round(cutRatio * nrow(X)))
+    })
+  
+  samplesAccuracies <- sapply(samples, function(s){
+    X <- X[sa,]
+    Y <- as.data.frame(Y)
+    Y <- Y[sa,]
+    
+    model_output <- model_function(X, Y, deviation, alpha, eta, seed, threshold)
+    a <- predict(model_output, X)
+    mean(Y == a)
+  })
+  
+  return(mean(samplesAccuracies))
+}
+
+train_0_1_Splits_Accuracies <- data.frame(Split = double(), Accuracy = double())
+for(i in 1:20)
+{
+  train_0_1_Splits_Accuracies <- rbind(train_0_1_Splits_Accuracies,
+                                       data.frame(
+                                         i/10,
+                                         accuracy(logistic_regression, train_0_1, true_label_train_0_1, deviation = 0.5, cutRatio = i/10 )) 
+                                       )
+}
+
+train_3_5_Splits_Accuracies <- data.frame(Split = double(), Accuracy = double())
+for(i in 1:20)
+{
+  train_3_5_Splits_Accuracies <- rbind(train_3_5_Splits_Accuracies,
+                                       data.frame(
+                                         i/10,
+                                         accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5, cutRatio = i/10 )) 
+                                       )
+}
+
+test_0_1_Splits_Accuracies <- data.frame(Split = double(), Accuracy = double())
+for(i in 1:20)
+{
+  test_0_1_Splits_Accuracies <- rbind(test_0_1_Splits_Accuracies,
+                                       data.frame(
+                                         i/10,
+                                         accuracy(logistic_regression, test_0_1, true_label_test_0_1, deviation = 0.5, cutRatio = i/10 )) 
+                                       )
+}
+
+test_3_5_Splits_Accuracies <- data.frame(Split = double(), Accuracy = double())
+for(i in 1:20)
+{
+  test_3_5_Splits_Accuracies <- rbind(test_3_5_Splits_Accuracies,
+                                       data.frame(
+                                         i/10,
+                                         accuracy(logistic_regression, test_3_5, true_label_test_3_5, deviation = 0.5, cutRatio = i/10 )) 
+                                       )
+}
 @
 
 
