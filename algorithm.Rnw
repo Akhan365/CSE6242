@@ -160,11 +160,12 @@ gradient_descent <- function(X, Y, XY, theta){
 }
 
 # Logistic Regression
-logistic_regression <- function(X, Y, alpha, eta, seed = 100, threshold = 100) {
+# threshold should be higher than 100 but I used 100 by default to speed up the calculations need for the report
+logistic_regression <- function(X, Y, deviation, alpha, eta, seed = 100, threshold = 100) {
   # initializations
   set.seed(seed)
   X$intercept <- 1
-  theta <- rnorm(ncol(X), sd = 0.5)
+  theta <- rnorm(ncol(X), sd = deviation)
   delta_theta <- rep(10000, ncol(X))
   numIterations <- 1
   
@@ -190,19 +191,154 @@ predict <- function(thetasFromTraining, classLabel){
 }
 
 # Calculate the accuracy
-accuracy <- function(model_function, X, Y,  alpha = 0.001, eta = 0.000001, seed = 100){
-  model_output <- model_function(X, Y, alpha, eta, seed)
+accuracy <- function(model_function, X, Y, deviation, alpha = 0.001, eta = 0.000001, seed = 100, threshold = 100){
+  model_output <- model_function(X, Y, deviation, alpha, eta, seed, threshold)
   a <- predict(model_output, X)
   tmp <- mean(Y == a)
   return(tmp)
 }
 
-accuracy(logistic_regression, train_0_1, true_label_train_0_1)
-accuracy(logistic_regression, train_3_5, true_label_train_3_5)
+theta <- rnorm(ncol(train_0_1), sd = 0.5)
+accuracy(logistic_regression, train_0_1, true_label_train_0_1, deviation = 0.5)
+accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5)
+@
+
+\textbf{b} Repeat 3a 10 times, i.e. you should obtain 10 train and test accuracies for each set.
+Calculate the average train and test accuracies over the 10 runs, and report them.
+
+<<>>=
+
+train_0_1_accuracies <- numeric()
+for(i in 1:10){ 
+  train_0_1_accuracies <- append(train_0_1_accuracies, accuracy(logistic_regression, train_0_1, true_label_train_0_1, deviation = 0.5 ))
+}
+mean(train_0_1_accuracies)
+
+train_3_5_accuracies <- numeric()
+for(i in 1:10){ 
+  train_3_5_accuracies <- append(train_3_5_accuracies, accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5))
+}
+mean(train_3_5_accuracies)
+
+
+test_0_1_accuracies <- numeric()
+for(i in 1:10){
+ test_0_1_accuracies <- append(test_0_1_accuracies, accuracy(logistic_regression, test_0_1, true_label_test_0_1, deviation = 0.5)) 
+}
+mean(test_0_1_accuracies)
+
+test_3_5_accuracies <- numeric()
+for(i in 1:10){
+  test_3_5_accuracies <- append(test_3_5_accuracies, accuracy(logistic_regression, test_3_5, true_label_test_3_5, deviation = 0.5))
+}
+mean(test_3_5_accuracies)
 
 @
 
+\textbf{c} For 0,1 and 3,5 cases, explain if you observe any difference you in accuracy. Also,\\
+explain why do you think this difference might be.\\
 
+\textbf{d} This assignment deals with binary classification. Explain what you would do if you \\
+had more than two classes to classify, using logistic regression.\\
+Since logistic regression can only classify into two classes, I will use N-1 logistic regression\\ 
+models where N is the number of outcome classes we have. Each model $m_i$ will classify  each un-classified \\
+observation into two outcomes: wether the observation falls in class $n_i$ or not. By running these models \\
+in sequence, the number of un-classified observations will get reduced untill we have all observations \\
+getting classified by one of the models, or remain un-classified.
+
+\section{Evaluation}
+
+\textbf{a} Experiment with different initializations of the parameter used for gradient descent \\
+Clearly mention the initial values of the parameter tried, run the same experiment \\
+as 3b using this initialization, report the average test and train accuracies obtained \\
+by using this initialization, mention which is set of initializations is the better.\\
+
+\textbf{initial_parameters_baseline} : 
+
+\begin{itemize}
+  \item theta = rnorm(ncol(train_0_1), sd = 0.5)
+  \item alpha = 0.001
+  \item eta = 0.000001
+  \item threshold = 100 (Threshold should be higher than 100 but I used 100 by default to speed up the calculations needed for the report.)
+\end{itemize}
+
+\textbf{convergence_criteria_baseline} : (abs(alpha * delta_theta/(theta + 0.0001)) > eta) OR (numIterations < threshold) \\
+
+Changing the initial parameters and keeping the convergence criteria the same. I obtained a new initial theta by changing the standard deviation I used for generating it.
+
+<<>>=
+train_0_1_accuracies <- numeric()
+t <- rnorm(ncol(train_0_1), sd = 0.7)
+for(i in 1:10){ 
+  train_0_1_accuracies <- append(train_0_1_accuracies, 
+                                 accuracy(logistic_regression, 
+                                          train_0_1, true_label_train_0_1, 
+                                          deviation = 0.7
+                                          )
+                                 )
+}
+mean(train_0_1_accuracies)
+
+train_3_5_accuracies <- numeric()
+for(i in 1:10){ 
+  train_3_5_accuracies <- append(train_3_5_accuracies, accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.7))
+}
+mean(train_3_5_accuracies)
+
+
+test_0_1_accuracies <- numeric()
+for(i in 1:10){
+ test_0_1_accuracies <- append(test_0_1_accuracies, accuracy(logistic_regression, test_0_1, true_label_test_0_1, deviation = 0.7)) 
+}
+mean(test_0_1_accuracies)
+
+test_3_5_accuracies <- numeric()
+for(i in 1:10){
+  test_3_5_accuracies <- append(test_3_5_accuracies, accuracy(logistic_regression, test_3_5, true_label_test_3_5, deviation = 0.7))
+}
+mean(test_3_5_accuracies)
+@
+
+\textbf{b} Experiment with different convergence criteria for gradient descent. Clearly mention \\
+the new criteria tried, run the same experiment as 3b using this new criteria, report \\
+average test and train accuracies obtained using this criteria, mention which set of \\
+criteria is better. \\
+
+Changing the convergence critiera and keeping the initial parameters the same.
+\textbf{new_convergence_criteria} : (abs(alpha * delta_theta/(theta + 0.0001)) > eta) OR (numIterations < threshold) . Where: \\
+\begin{itemize}
+  \item theta = rnorm(ncol(train_0_1), sd = 0.5). Same as initial_parameters_baseline.
+  \item alpha = 0.01
+  \item eta = 0.0001
+  \item threshold = 1000
+\end{itemize}
+
+<<>>=
+train_0_1_accuracies <- numeric()
+for(i in 1:10){ 
+  train_0_1_accuracies <- append(train_0_1_accuracies, accuracy(logistic_regression, train_0_1, true_label_train_0_1, deviation = 0.5, alpha = 0.01, eta = 0.0001, threshold = 1000))
+}
+mean(train_0_1_accuracies)
+
+train_3_5_accuracies <- numeric()
+for(i in 1:10){ 
+  train_3_5_accuracies <- append(train_3_5_accuracies, accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5, alpha = 0.01, eta = 0.0001, threshold = 1000))
+}
+mean(train_3_5_accuracies)
+
+
+test_0_1_accuracies <- numeric()
+for(i in 1:10){
+ test_0_1_accuracies <- append(test_0_1_accuracies, accuracy(logistic_regression, test_0_1, true_label_test_0_1, deviation = 0.5, alpha = 0.01, eta = 0.0001, threshold = 1000)) 
+}
+mean(test_0_1_accuracies)
+
+test_3_5_accuracies <- numeric()
+for(i in 1:10){
+  test_3_5_accuracies <- append(test_3_5_accuracies, accuracy(logistic_regression, test_3_5, true_label_test_3_5, deviation = 0.5, alpha = 0.01, eta = 0.0001, threshold = 1000))
+}
+mean(test_3_5_accuracies)
+@
 
 
 \end{document}

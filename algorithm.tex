@@ -152,22 +152,29 @@ Each gradient descent update iteration requires $2n(d + 1)$\\
 \section{Implementation}
 \begin{Schunk}
 \begin{Sinput}
-> gradient_descent <- function(X, Y, theta){
+> # Gredient Descent
+> gradient_descent <- function(X, Y, XY, theta){
 +     z <- as.matrix(X) %*% theta
-+     yz_exp <- 1 / (1 + exp(-y * z))
-+     tmp <- apply(X,2,function(x) x * y)
-+     delta_theta <- t(tmp) %*% yz_exp
++     yz_exp <- 1 / (1 + exp(-Y * z))
++     # Precalculate that instead for performance
++     #tmp <- apply(X,2,function(x) X * Y)
++     delta_theta <- t(XY) %*% yz_exp
 +     return(delta_theta)
 + }
-> logistic_regression <- function(X, y, alpha, eta, seed = 123, threshold = 1e6) {
+> # Logistic Regression
+> # threshold should be higher than 100 but I used 100 by default to speed up the calculations need for the report
+> logistic_regression <- function(X, Y, deviation, alpha, eta, seed = 100, threshold = 100) {
 +   # initializations
 +   set.seed(seed)
 +   X$intercept <- 1
-+   theta <- rnorm(ncol(X), sd = 0.5)
++   theta <- rnorm(ncol(X), sd = deviation)
 +   delta_theta <- rep(10000, ncol(X))
 +   numIterations <- 1
-+   while (any(abs(alpha * d_theta/(theta + 0.0001)) > eta) & numIterations < threshold){
-+     delta_theta <- gradient_descent(X,Y,theta)
++   
++   #XY <- apply(X,2,function(x) X * Y)
++   XY <- sweep(X, 1,Y, "*")
++   while (any(abs(alpha * delta_theta/(theta + 0.0001)) > eta) & numIterations < threshold){
++     delta_theta <- gradient_descent(X,Y, XY,theta)
 +     theta <- theta - alpha * delta_theta
 +     numIterations <- numIterations + 1
 +   }
@@ -176,4 +183,126 @@ Each gradient descent update iteration requires $2n(d + 1)$\\
 \end{Sinput}
 \end{Schunk}
 
-\end{document}
+\section{Training}
+\textbf{a} Train 2 models, one on the train_0_1 set and another on train_3_5, and report the\\
+training and test accuracies.
+\begin{Schunk}
+\begin{Sinput}
+> # Calculate the predictions
+> predict <- function(thetasFromTraining, classLabel){
++   classLabel$intercept <- 1
++   -sign(as.matrix(classLabel) %*% thetasFromTraining)
++ }
+> # Calculate the accuracy
+> accuracy <- function(model_function, X, Y, deviation, alpha = 0.001, eta = 0.000001, seed = 100, threshold = 100){
++   model_output <- model_function(X, Y, deviation, alpha, eta, seed, threshold)
++   a <- predict(model_output, X)
++   tmp <- mean(Y == a)
++   return(tmp)
++ }
+> theta <- rnorm(ncol(train_0_1), sd = 0.5)
+> accuracy(logistic_regression, train_0_1, true_label_train_0_1, deviation = 0.5)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.5323332
+\end{Soutput}
+\begin{Sinput}
+> accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5)
+\end{Sinput}
+\begin{Soutput}
+[1] 0
+\end{Soutput}
+\end{Schunk}
+
+\textbf{b} Repeat 3a 10 times, i.e. you should obtain 10 train and test accuracies for each set.
+Calculate the average train and test accuracies over the 10 runs, and report them.
+
+\begin{Schunk}
+\begin{Sinput}
+> train_0_1_accuracies <- numeric()
+> for(i in 1:10){ 
++   train_0_1_accuracies <- append(train_0_1_accuracies, accuracy(logistic_regression, train_0_1, true_label_train_0_1, deviation = 0.5 ))
++ }
+> mean(train_0_1_accuracies)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.5323332
+\end{Soutput}
+\begin{Sinput}
+> train_3_5_accuracies <- numeric()
+> for(i in 1:10){ 
++   train_3_5_accuracies <- append(train_3_5_accuracies, accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5))
++ }
+> mean(train_3_5_accuracies)
+\end{Sinput}
+\begin{Soutput}
+[1] 0
+\end{Soutput}
+\begin{Sinput}
+> test_0_1_accuracies <- numeric()
+> for(i in 1:10){
++  test_0_1_accuracies <- append(test_0_1_accuracies, accuracy(logistic_regression, test_0_1, true_label_test_0_1, deviation = 0.5)) 
++ }
+> mean(test_0_1_accuracies)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.536643
+\end{Soutput}
+\begin{Sinput}
+> test_3_5_accuracies <- numeric()
+> for(i in 1:10){
++   test_3_5_accuracies <- append(test_3_5_accuracies, accuracy(logistic_regression, test_3_5, true_label_test_3_5, deviation = 0.5))
++ }
+> mean(test_3_5_accuracies)
+\end{Sinput}
+\begin{Soutput}
+[1] 0
+\end{Soutput}
+\begin{Sinput}
+> 
+\end{Sinput}
+\end{Schunk}
+
+\textbf{c} For 0,1 and 3,5 cases, explain if you observe any difference you in accuracy. Also,\\
+explain why do you think this difference might be.\\
+
+\textbf{d} This assignment deals with binary classification. Explain what you would do if you \\
+had more than two classes to classify, using logistic regression.\\
+Since logistic regression can only classify into two classes, I will use N-1 logistic regression\\ 
+models where N is the number of outcome classes we have. Each model $m_i$ will classify  each un-classified \\
+observation into two outcomes: wether the observation falls in class $n_i$ or not. By running these models \\
+in sequence, the number of un-classified observations will get reduced untill we have all observations \\
+getting classified by one of the models, or remain un-classified.
+
+\section{Evaluation}
+
+\textbf{a} Experiment with different initializations of the parameter used for gradient descent \\
+Clearly mention the initial values of the parameter tried, run the same experiment \\
+as 3b using this initialization, report the average test and train accuracies obtained \\
+by using this initialization, mention which is set of initializations is the better.\\
+
+\textbf{initial_parameters_baseline} : 
+
+\begin{itemize}
+  \item theta = rnorm(ncol(train_0_1), sd = 0.5)
+  \item alpha = 0.001
+  \item eta = 0.000001
+  \item threshold = 100 (Threshold should be higher than 100 but I used 100 by default to speed up the calculations needed for the report.)
+\end{itemize}
+
+\textbf{convergence_criteria_baseline} : (abs(alpha * delta_theta/(theta + 0.0001)) > eta) OR (numIterations < threshold) \\
+
+Changing the initial parameters and keeping the convergence criteria the same. I obtained a new initial theta by changing the standard deviation I used for generating it.
+
+\begin{Schunk}
+\begin{Sinput}
+> train_0_1_accuracies <- numeric()
+> t <- rnorm(ncol(train_0_1), sd = 0.7)
+> for(i in 1:10){ 
++   train_0_1_accuracies <- append(train_0_1_accuracies, 
++                                  accuracy(logistic_regression, 
++                                           train_0_1, true_label_train_0_1, 
++                                           theta = t
++                                           )
++                                  )
++ }
