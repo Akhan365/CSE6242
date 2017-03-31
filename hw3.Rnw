@@ -371,7 +371,7 @@ for(i in 1:20)
   train_0_1_Splits_Accuracies <- rbind(train_0_1_Splits_Accuracies,
                                        data.frame(
                                          i/10,
-                                         accuracy(logistic_regression, train_0_1, true_label_train_0_1, deviation = 0.5, cutRatio = i/10 )) 
+                                         accuracy(logistic_regression, train_0_1, true_label_train_0_1, deviation = 0.5, cutRatio = i*5 )) 
                                        )
 }
 
@@ -381,7 +381,7 @@ for(i in 1:20)
   train_3_5_Splits_Accuracies <- rbind(train_3_5_Splits_Accuracies,
                                        data.frame(
                                          i/10,
-                                         accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5, cutRatio = i/10 )) 
+                                         accuracy(logistic_regression, train_3_5, true_label_train_3_5, deviation = 0.5, cutRatio = i*5 )) 
                                        )
 }
 
@@ -391,7 +391,7 @@ for(i in 1:20)
   test_0_1_Splits_Accuracies <- rbind(test_0_1_Splits_Accuracies,
                                        data.frame(
                                          i/10,
-                                         accuracy(logistic_regression, test_0_1, true_label_test_0_1, deviation = 0.5, cutRatio = i/10 )) 
+                                         accuracy(logistic_regression, test_0_1, true_label_test_0_1, deviation = 0.5, cutRatio = i*5 )) 
                                        )
 }
 
@@ -401,7 +401,7 @@ for(i in 1:20)
   test_3_5_Splits_Accuracies <- rbind(test_3_5_Splits_Accuracies,
                                        data.frame(
                                          i/10,
-                                         accuracy(logistic_regression, test_3_5, true_label_test_3_5, deviation = 0.5, cutRatio = i/10 )) 
+                                         accuracy(logistic_regression, test_3_5, true_label_test_3_5, deviation = 0.5, cutRatio = i*5 )) 
                                        )
 }
 @
